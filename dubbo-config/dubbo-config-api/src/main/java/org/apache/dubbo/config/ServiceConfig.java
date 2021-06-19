@@ -303,7 +303,10 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
         ServiceRepository repository = ApplicationModel.getServiceRepository();
+        //注册接口服务,得到接口描述
         ServiceDescriptor serviceDescriptor = repository.registerService(getInterfaceClass());
+
+        // 注册服务提供
         repository.registerProvider(
                 getUniqueServiceName(),
                 ref,
@@ -312,6 +315,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                 serviceMetadata
         );
 
+        //得到注册的url list，依赖多少个注册中心地址
         List<URL> registryURLs = ConfigValidationUtils.loadRegistries(this, true);
 
         for (ProtocolConfig protocolConfig : protocols) {
@@ -319,6 +323,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                     .map(p -> p + "/" + path)
                     .orElse(path), group, version);
             // In case user specified path, register service one more time to map it to path.
+            // 如果用户指定路径，需要再次注册
             repository.registerService(pathKey, interfaceClass);
             // TODO, uncomment this line once service key is unified
             serviceMetadata.setServiceKey(pathKey);
@@ -326,8 +331,14 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         }
     }
 
+    /**
+     * 针对每种协议类型进行暴露
+     * @param protocolConfig
+     * @param registryURLs
+     */
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
         String name = protocolConfig.getName();
+        //未指定，默认使用dubbo protocol
         if (StringUtils.isEmpty(name)) {
             name = DUBBO;
         }
@@ -486,6 +497,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                             registryURL = registryURL.addParameter(PROXY_KEY, proxy);
                         }
 
+                        //将service转换为对应的invoker，proxy方式
                         Invoker<?> invoker = PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(EXPORT_KEY, url.toFullString()));
                         DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
 
@@ -716,6 +728,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
      *
      * @param event an {@link Event event}
      * @since 2.7.5
+     * 事件分发处理
      */
     private void dispatch(Event event) {
         EventDispatcher.getDefaultExtension().dispatch(event);

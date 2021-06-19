@@ -237,6 +237,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
         removeFailedUnregistered(url);
         try {
             // Sending a registration request to the server side
+            // 委派具体的注册实现类
             doRegister(url);
         } catch (Exception e) {
             Throwable t = e;
@@ -245,6 +246,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             boolean check = getUrl().getParameter(Constants.CHECK_KEY, true)
                     && url.getParameter(Constants.CHECK_KEY, true)
                     && !CONSUMER_PROTOCOL.equals(url.getProtocol());
+            //判断是否跳过失败恢复
             boolean skipFailback = t instanceof SkipFailbackWrapperException;
             if (check || skipFailback) {
                 if (skipFailback) {
@@ -256,6 +258,7 @@ public abstract class FailbackRegistry extends AbstractRegistry {
             }
 
             // Record a failed registration request to a failed list, retry regularly
+            // 注册失败，稍后重试
             addFailedRegistered(url);
         }
     }

@@ -33,6 +33,9 @@ import java.util.concurrent.ConcurrentMap;
 import static org.apache.dubbo.common.BaseServiceMetadata.interfaceFromServiceKey;
 import static org.apache.dubbo.common.BaseServiceMetadata.versionFromServiceKey;
 
+/**
+ * 服务本地内存暂存，加速检索
+ */
 public class ServiceRepository extends LifecycleAdapter implements FrameworkExt {
 
     public static final String NAME = "repository";
