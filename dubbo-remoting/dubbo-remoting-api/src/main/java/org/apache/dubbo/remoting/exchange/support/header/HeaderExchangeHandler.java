@@ -77,6 +77,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
 
     void handleRequest(final ExchangeChannel channel, Request req) throws RemotingException {
         Response res = new Response(req.getId(), req.getVersion());
+        //case a: bad request
         if (req.isBroken()) {
             Object data = req.getData();
 
@@ -97,6 +98,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
         // find handler by message class.
         Object msg = req.getData();
         try {
+            //调用reply获取执行结果
             CompletionStage<Object> future = handler.reply(channel, msg);
             future.whenComplete((appResult, t) -> {
                 try {
@@ -164,6 +166,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
 
     @Override
     public void received(Channel channel, Object message) throws RemotingException {
+        //将网络层channel转换为业务层channel
         final ExchangeChannel exchangeChannel = HeaderExchangeChannel.getOrAddChannel(channel);
         if (message instanceof Request) {
             // handle request.
@@ -171,6 +174,7 @@ public class HeaderExchangeHandler implements ChannelHandlerDelegate {
             if (request.isEvent()) {
                 handlerEvent(channel, request);
             } else {
+                //case a:请求响应模型的处理
                 if (request.isTwoWay()) {
                     handleRequest(exchangeChannel, request);
                 } else {
