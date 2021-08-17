@@ -188,8 +188,9 @@ public class RegistryProtocol implements Protocol {
 
     @Override
     public <T> Exporter<T> export(final Invoker<T> originInvoker) throws RpcException {
+        //注册地址
         URL registryUrl = getRegistryUrl(originInvoker);
-        // url to export locally
+        // url to export locally，服务地址
         URL providerUrl = getProviderUrl(originInvoker);
 
         // Subscribe the override data

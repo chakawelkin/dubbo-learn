@@ -185,11 +185,13 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
             return;
         }
 
+        //初始化配置信息
         if (bootstrap == null) {
             bootstrap = DubboBootstrap.getInstance();
             bootstrap.initialize();
         }
 
+        //参数、配置校验
         checkAndUpdateSubConfigs();
 
         //init serviceMetadata
@@ -200,12 +202,13 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         serviceMetadata.setServiceInterfaceName(getInterface());
         serviceMetadata.setTarget(getRef());
 
+        //判断是否需要延迟暴露
         if (shouldDelay()) {
             DELAY_EXPORT_EXECUTOR.schedule(this::doExport, getDelay(), TimeUnit.MILLISECONDS);
         } else {
             doExport();
         }
-
+        //发布服务已暴露事件
         exported();
     }
 
@@ -303,10 +306,11 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
         ServiceRepository repository = ApplicationModel.getServiceRepository();
-        //注册接口服务,得到接口描述
+
+        //本地注册接口描述
         ServiceDescriptor serviceDescriptor = repository.registerService(getInterfaceClass());
 
-        // 注册服务提供
+        //根据接口描述，服务实现向本地注册接口服务信息
         repository.registerProvider(
                 getUniqueServiceName(),
                 ref,
@@ -318,6 +322,7 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
         //得到注册的url list，依赖多少个注册中心地址
         List<URL> registryURLs = ConfigValidationUtils.loadRegistries(this, true);
 
+        //遍历协议类型
         for (ProtocolConfig protocolConfig : protocols) {
             String pathKey = URL.buildKey(getContextPath(protocolConfig)
                     .map(p -> p + "/" + path)
@@ -497,10 +502,11 @@ public class ServiceConfig<T> extends ServiceConfigBase<T> {
                             registryURL = registryURL.addParameter(PROXY_KEY, proxy);
                         }
 
-                        //将service转换为对应的invoker，proxy方式
+                        //将服务service实现转换为invoker
                         Invoker<?> invoker = PROXY_FACTORY.getInvoker(ref, (Class) interfaceClass, registryURL.addParameterAndEncoded(EXPORT_KEY, url.toFullString()));
                         DelegateProviderMetaDataInvoker wrapperInvoker = new DelegateProviderMetaDataInvoker(invoker, this);
 
+                        //封装rpc调用
                         Exporter<?> exporter = PROTOCOL.export(wrapperInvoker);
                         exporters.add(exporter);
                     }
