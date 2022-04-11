@@ -18,6 +18,7 @@ package org.apache.dubbo.demo.provider;
 
 import org.apache.dubbo.config.annotation.DubboService;
 import org.apache.dubbo.demo.DemoService;
+import org.apache.dubbo.demo.UserDto;
 import org.apache.dubbo.rpc.RpcContext;
 
 import org.slf4j.Logger;
@@ -33,6 +34,11 @@ public class DemoServiceImpl implements DemoService {
     public String sayHello(String name) {
         logger.info("Hello " + name + ", request from consumer: " + RpcContext.getContext().getRemoteAddress());
         return "Hello " + name + ", response from provider: " + RpcContext.getContext().getLocalAddress();
+    }
+
+    @Override
+    public String save(UserDto userDto) {
+        return null;
     }
 
     @Override

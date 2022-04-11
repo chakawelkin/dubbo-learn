@@ -25,7 +25,7 @@ import org.apache.dubbo.demo.DemoService;
 
 import java.util.concurrent.CountDownLatch;
 
-public class Application {
+public class ProviderApplication {
     public static void main(String[] args) throws Exception {
         if (isClassic(args)) {
             startWithExport();
@@ -47,7 +47,7 @@ public class Application {
         protocolConfig.setSerialization("protostuff");
         DubboBootstrap bootstrap = DubboBootstrap.getInstance();
         bootstrap.application(new ApplicationConfig("dubbo-demo-api-provider"))
-                .registry(new RegistryConfig("nacos://10.88.11.209:8848"))
+                .registry(new RegistryConfig("nacos://127.0.0.1:8848"))
                 .service(service)
                 .start()
                 .await();

@@ -16,7 +16,10 @@
  */
 package org.apache.dubbo.demo.provider;
 
+import org.apache.dubbo.config.ModuleConfig;
 import org.apache.dubbo.config.RegistryConfig;
+import org.apache.dubbo.config.bootstrap.builders.ModuleBuilder;
+import org.apache.dubbo.config.spring.ConfigCenterBean;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -38,8 +41,28 @@ public class Application {
         @Bean
         public RegistryConfig registryConfig() {
             RegistryConfig registryConfig = new RegistryConfig();
-            registryConfig.setAddress("zookeeper://127.0.0.1:2181");
+//            registryConfig.setAddress("zookeeper://127.0.0.1:2181");
+            registryConfig.setAddress("nacos://127.0.0.1:8848");
             return registryConfig;
         }
+
+        @Bean
+        public ModuleConfig moduleConfig(){
+            return new ModuleBuilder()
+                    .name("demo")
+                    .owner("chaka")
+                    .organization("trade-order")
+                    .build();
+        }
+
+        @Bean
+        public ConfigCenterBean configCenterBean(){
+            ConfigCenterBean configCenterBean = new ConfigCenterBean();
+            configCenterBean.setIncludeSpringEnv(true);
+            configCenterBean.setProtocol("nacos");
+            configCenterBean.setAddress("127.0.0.1:8848");
+            return configCenterBean;
+        }
+
     }
 }

@@ -431,8 +431,14 @@ public abstract class ServiceConfigBase<T> extends AbstractServiceConfig {
         }
     }
 
+    /**
+     * 服务暴露
+     */
     public abstract void export();
 
+    /**
+     * 服务下线
+     */
     public abstract void unexport();
 
     public abstract boolean isExported();

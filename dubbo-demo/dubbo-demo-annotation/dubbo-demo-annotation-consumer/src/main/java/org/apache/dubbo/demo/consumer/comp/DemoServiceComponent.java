@@ -19,6 +19,7 @@ package org.apache.dubbo.demo.consumer.comp;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.dubbo.demo.DemoService;
 
+import org.apache.dubbo.demo.UserDto;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
@@ -31,6 +32,11 @@ public class DemoServiceComponent implements DemoService {
     @Override
     public String sayHello(String name) {
         return demoService.sayHello(name);
+    }
+
+    @Override
+    public String save(UserDto userDto) {
+        return null;
     }
 
     @Override

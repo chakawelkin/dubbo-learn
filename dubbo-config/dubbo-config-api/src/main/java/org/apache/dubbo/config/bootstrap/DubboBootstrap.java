@@ -516,12 +516,16 @@ public class DubboBootstrap extends GenericEventListener {
             return;
         }
 
+        //初始化应用扩展，config/service repository/env
         ApplicationModel.initFrameworkExts();
 
+        //拉取配置中心配置&刷新配置 , appConfig & dubboConfig
         startConfigCenter();
 
+        //加载 registryConfig & protocolConfig
         loadRemoteConfigs();
 
+        //校验核心全局配置
         checkGlobalConfigs();
 
         // @since 2.7.8

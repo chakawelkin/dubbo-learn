@@ -22,6 +22,8 @@ public interface DemoService {
 
     String sayHello(String name);
 
+    String save(UserDto userDto);
+
     default CompletableFuture<String> sayHelloAsync(String name) {
         return CompletableFuture.completedFuture(sayHello(name));
     }
