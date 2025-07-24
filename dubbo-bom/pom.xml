@@ -358,11 +358,11 @@
                 <artifactId>dubbo-serialization-gson</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
+            <!--<dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-serialization-protobuf</artifactId>
                 <version>${project.version}</version>
-            </dependency>
+            </dependency>-->
             <dependency>
                 <groupId>org.apache.dubbo</groupId>
                 <artifactId>dubbo-compatible</artifactId>

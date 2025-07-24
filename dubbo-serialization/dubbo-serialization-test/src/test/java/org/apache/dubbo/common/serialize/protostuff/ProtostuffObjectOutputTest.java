@@ -27,12 +27,16 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.dubbo.common.serialize.model.SerializablePerson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import io.protostuff.Schema;
+import io.protostuff.runtime.RuntimeSchema;
 
 public class ProtostuffObjectOutputTest {
 
@@ -162,6 +166,39 @@ public class ProtostuffObjectOutputTest {
 
         Date serializedTime = protostuffObjectInput.readObject(Date.class);
         assertThat(serializedTime, is(originTime));
+    }
+
+    @Test
+    public void testPojoMappingPollutionWithArrayList() throws IOException, ClassNotFoundException {
+        // 模拟服务端：强制将ArrayList注册为POJO schema
+        Schema<ArrayList> schema = RuntimeSchema.getSchema(ArrayList.class);// 触发POJO注册
+        System.out.println("schema class: " + schema.getClass().getName());
+
+        // 构造一个ArrayList
+        ArrayList<String> list = new ArrayList<>();
+        list.add("a");
+        list.add("b");
+        list.add("c");
+
+        // 序列化
+        this.protostuffObjectOutput.writeObject(list);
+        this.flushToInput();
+
+        // 客户端：反序列化
+        Object obj = protostuffObjectInput.readObject();
+        assert obj instanceof ArrayList;
+        ArrayList<?> deserialized = (ArrayList<?>) obj;
+
+        // 这里尝试遍历，可能会抛出ConcurrentModificationException
+        boolean gotException = false;
+        try {
+            for (Object o : deserialized) {
+                // do nothing
+            }
+        } catch (ConcurrentModificationException e) {
+            gotException = true;
+        }
+        assertThat(gotException, is(true));
     }
 
     private void flushToInput() throws IOException {
