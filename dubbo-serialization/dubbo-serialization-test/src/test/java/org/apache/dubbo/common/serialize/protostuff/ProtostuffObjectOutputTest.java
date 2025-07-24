@@ -171,8 +171,8 @@ public class ProtostuffObjectOutputTest {
     @Test
     public void testPojoMappingPollutionWithArrayList() throws IOException, ClassNotFoundException {
         // 模拟服务端：强制将ArrayList注册为POJO schema
-        Schema<ArrayList> schema = RuntimeSchema.getSchema(ArrayList.class);// 触发POJO注册
-        System.out.println("schema class: " + schema.getClass().getName());
+//        Schema<ArrayList> schema = RuntimeSchema.getSchema(ArrayList.class);// 触发POJO注册
+//        System.out.println("schema class: " + schema.getClass().getName());
 
         // 构造一个ArrayList
         ArrayList<String> list = new ArrayList<>();
@@ -198,6 +198,44 @@ public class ProtostuffObjectOutputTest {
         } catch (ConcurrentModificationException e) {
             gotException = true;
         }
+        assertThat(gotException, is(true));
+    }
+
+    @Test
+    public void testSerializePojoMappingPollutionWithArrayList() throws IOException, ClassNotFoundException {
+        // 这个是注册了ArrayList后序列化得到的二进制数组
+        byte[] withRegisterBytes = new byte[] {
+                0, 0, 0, 52, 0, 0, 0, 26, 111, 114, 103, 46, 97, 112, 97, 99, 104, 101, 46, 100, 117, 98, 98, 111, 46, 99, 111,
+                109, 109, 111, 110, 46, 115, 101, 114, 105, 97, 108, 105, 122, 101, 46, 112, 114, 111, 116, 111, 115, 116, 117,
+                102, 102, 46, 87, 114, 97, 112, 112, 101, 114, 11, -6, 7, 19, 106, 97, 118, 97, 46, 117, 116, 105, 108, 46, 65,
+                114, 114, 97, 121, 76, 105, 115, 116, 8, 3, 12
+        };
+
+        // 这个是未注册ArrayList后序列化得到的二进制数组
+        byte[] correctBytes = new byte[] {
+                0, 0, 0, 52, 0, 0, 0, 29, 111, 114, 103, 46, 97, 112, 97, 99, 104, 101, 46, 100, 117, 98, 98, 111, 46, 99, 111,
+                109, 109, 111, 110, 46, 115, 101, 114, 105, 97, 108, 105, 122, 101, 46, 112, 114, 111, 116, 111, 115, 116, 117,
+                102, 102, 46, 87, 114, 97, 112, 112, 101, 114, 11, -54, 1, 9, 65, 114, 114, 97, 121, 76, 105, 115, 116, 11, 74,
+                1, 97, 12, 11, 74, 1, 98, 12, 11, 74, 1, 99, 12, 12
+        };
+
+        // 是否注册到pojoMapping
+        RuntimeSchema.getSchema(ArrayList.class);
+        // 现在用一个没有注册的ArrayList的来反序列化，然后再遍历
+        Object obj = new ProtostuffObjectInput(new ByteArrayInputStream(correctBytes)).readObject();
+
+        assert obj instanceof ArrayList;
+        ArrayList<?> deserialized = (ArrayList<?>) obj;
+
+        boolean gotException = false;
+        try {
+            for (Object o : deserialized) {
+                // do nothing
+            }
+        } catch (ConcurrentModificationException e) {
+            gotException = true;
+        }
+
         assertThat(gotException, is(true));
     }
 
